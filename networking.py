@@ -1,6 +1,7 @@
 import requests as req
 from bs4 import BeautifulSoup
 from typing import Any, List, Dict
+import certifi
 
 class NetworkManager:
     URL_ATLETI = "https://www.fpi.it/atleti.html"
@@ -18,7 +19,7 @@ class NetworkManager:
 
     def __init_session(self) -> req.Session:
         s = req.Session()
-        s.verify = False
+        s.verify = certifi.where()
         s.get(self.URL_ATLETI)
         print("Sessione inizializzata")
         return s

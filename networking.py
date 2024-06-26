@@ -4,6 +4,7 @@ from typing import Any, List, Dict
 import certifi
 
 class NetworkManager:
+    #urls to recive dynamic options in roder to show the correct available options in the gui
     URL_ATLETI = "https://www.fpi.it/atleti.html"
     URL_QUALIFICHE = "https://www.fpi.it/index.php?option=com_callrestapi&task=json_qualifiche"
     URL_PESO = "https://www.fpi.it/index.php?option=com_callrestapi&task=json_peso"
@@ -12,18 +13,29 @@ class NetworkManager:
     def __init__(self):
         self.session = self.__init_session()
         self.cache = {}
+
+        """
+        the html corresponding to URL_ATLETI has a form with post method composed of select-option tags,
+        you have to create a dictionary to send as parameter to compile the form.
+        However, there are form fields whose options are generated dynamically by javascript.
+        To have access to the available info and their values you need to access the php that provides them.
+        sending a payload to php this responds with a list of options based on the data received.
+        For this you have to create an initial payload with form options that are constant,
+        and update the payload to each request get to php of the field you want to compile. """
         self.payload = {
             'id_tipo_tessera': '5',  # Atleta dilettante IBA
             'sesso': 'M'
         }
 
+    #initialize the session in order to get cookies and tokens if necessary
     def __init_session(self) -> req.Session:
         s = req.Session()
         s.verify = certifi.where()
         s.get(self.URL_ATLETI)
-        print("Sessione inizializzata")
+        print("Connessione riuscita, attendere l'apertura della finestra")
         return s
 
+    #scraps available options and their relative int value from the HTML souce code
     def get_comitati(self) -> Dict[str, int]:
         if "comitati" in self.cache:
             return self.cache["comitati"]

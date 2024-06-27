@@ -32,12 +32,11 @@ class NetworkManager:
         s = req.Session()
         try:
             s.verify = certifi.where()
-            s.get(self.URL_ATLETI)
-            print("connessione riuscita con verifica dei certificati")
+            print("i certificati SSL sono stati validati")
         except:
             s.verify = False
-            s.get(self.URL_ATLETI)
-            print("Connessione riuscita senza verifica dei certificati")
+        s.get(self.URL_ATLETI)
+        print("Connessione riuscita")
         print("attendere l'apertura della finestra")
         return s
 
@@ -45,12 +44,7 @@ class NetworkManager:
     def get_comitati(self) -> Dict[str, int]:
         if "comitati" in self.cache:
             return self.cache["comitati"]
-        try:
-            self.session.verify = certifi.where()
-            response = self.session.get(self.URL_ATLETI)
-        except:
-            self.session.verify = False
-            response = self.session.get(self.URL_ATLETI)
+        response = self.session.get(self.URL_ATLETI)
         if response.status_code == 200:
             soup = BeautifulSoup(response.text, "html.parser")
             select_element = soup.find("select", id="id_comitato_atleti")
@@ -62,12 +56,7 @@ class NetworkManager:
     def get_options(self, url: str) -> Dict[str, int]:
         if url in self.cache:
             return self.cache[url]
-        try:
-            self.session.verify = certifi.where()
-            response = self.session.get(url, params=self.payload)
-        except:
-            self.session.verify = False
-            response = self.session.get(url, params=self.payload)
+        response = self.session.get(url, params=self.payload)
         if response.status_code == 200:
             options_soup = BeautifulSoup(response.text, 'html.parser')
             options = {option.text: option["value"] for option in options_soup.find_all("option") if option['value']}
@@ -76,12 +65,7 @@ class NetworkManager:
         return {}
 
     def fetch_athletes(self, url: str) -> List[Any]:
-        try:
-            self.session.verify = certifi.where()
-            response = self.session.post(url, params=self.payload)
-        except:
-            self.session.verify = False
-            response = self.session.post(url, params=self.payload)
+        response = self.session.post(url, params=self.payload)
         if response.status_code == 200:
             soup = BeautifulSoup(response.text, 'html.parser')
             return soup.find_all('div', class_='atleta')
@@ -90,12 +74,7 @@ class NetworkManager:
     def get_athlete_stats(self, matricola: str) -> Dict[str, int]:
         if matricola in self.cache:
             return self.cache[matricola]
-        try:
-            self.session.verify = certifi.where()
-            response = self.session.get(self.URL_STATISTICHE, params={'matricola': matricola})
-        except:
-            self.session.verify = False
-            response = self.session.get(self.URL_STATISTICHE, params={'matricola': matricola})
+        response = self.session.get(self.URL_STATISTICHE, params={'matricola': matricola})
         if response.status_code == 200:
             stats = BeautifulSoup(response.text, 'html.parser').find_all("td")
             statistiche = {

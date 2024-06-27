@@ -5,5 +5,6 @@ mkShell {
     requests
     tkinter
     beautifulsoup4
+    certifi
   ];
 }

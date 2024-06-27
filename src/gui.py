@@ -133,6 +133,8 @@ class Application:
     def __update_comitato(self, event: any) -> None:
         selected_comitato = event.widget.get()
         self.network_manager.payload["id_comitato_atleti"] = self.__set_value(selected_comitato, self.network_manager.get_comitati())
+        if selected_comitato == "comitato":
+            self.network_manager.payload.pop("id_comitato_atleti")
 
     #gets available ages list and uses it to return the second filter combobox
     def add_qualifica(self, container: tk.Frame) -> ttk.Combobox:

@@ -174,7 +174,7 @@ class Application:
         if self.network_manager.payload.get("qualifica") is not None:
             self.network_manager.payload["id_qualifica"] = self.network_manager.payload.pop("qualifica")
 
-            if self.network_manager.payload.get("peso") is not None:
+            if self.network_manager.payload.get("id_peso") is not None:
                 if self.network_manager.payload['id_qualifica'] == 20:
                     match self.network_manager.payload["id_peso"]:
                         case 114:

@@ -103,7 +103,7 @@ class Application:
         file_name = self.file_name_entry.get().strip()
 
         if not file_name:
-            qualifica = self.qualifiche.get() if self.qualifiche else None
+            qualifica = self.qualifiche.get() if self.qualifiche else "NA"
             peso = self.pesi_combobox.get() if self.pesi_combobox else "NA"
             file_name = f"{qualifica}_{peso}"
 

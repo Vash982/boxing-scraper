@@ -164,28 +164,32 @@ class Application:
         return ttk.Combobox(container, values=pesi, state='readonly', width=30, font=("sans serif", 10))
     
     #if the value of the first filter combobox is set or changed, the value of the relative key is updated in the payload
-    def __update_pesi(self, event) -> None:
+    def __update_pesi(self, event: any) -> None:
         selected_peso = event.widget.get()
         self.network_manager.payload["id_peso"] = self.__set_value(selected_peso, self.network_manager.get_options(self.network_manager.URL_PESO))
 
     #modifies the payload in order to make the right request to the server
     def __search(self) -> None:
-        self.network_manager.payload["id_qualifica"] = self.network_manager.payload.get("qualifica")
+        if self.network_manager.payload.get("qualifica") is not None:
+            self.network_manager.payload["id_qualifica"] = self.network_manager.payload.pop("qualifica")
 
-        if self.network_manager.payload['id_qualifica'] == 20:
-            match self.network_manager.payload["id_peso"]:
-                case 114:
-                    self.network_manager.payload["id_peso"] = 468
+            if self.network_manager.payload.get("peso") is not None:
+                if self.network_manager.payload['id_qualifica'] == 20:
+                    match self.network_manager.payload["id_peso"]:
+                        case 114:
+                            self.network_manager.payload["id_peso"] = 468
 
-        if self.network_manager.payload["id_qualifica"] == 97:
-            match self.network_manager.payload["id_peso"]:
-                case 159:
-                    self.network_manager.payload["id_peso"] = 429
+                if self.network_manager.payload["id_qualifica"] == 97:
+                    match self.network_manager.payload["id_peso"]:
+                        case 159:
+                            self.network_manager.payload["id_peso"] = 429
 
         Thread(target=self.__fetch_and_display_athletes).start()
 
+
+
     #gets the result page, scraps and filter every athlete, and finally, writes the excel file
-    def __fetch_and_display_athletes(self):
+    def __fetch_and_display_athletes(self) -> None:
         athlete_divs = self.network_manager.fetch_athletes(self.network_manager.URL_ATLETI)
         athletes = [parse_athlete_data(div, self.network_manager) for div in athlete_divs]
         filtered_athletes = filter_athletes(athletes, self.MIN_MATCHES, self.MAX_MATCHES)

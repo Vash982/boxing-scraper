@@ -1,7 +1,6 @@
 import requests as req
 from bs4 import BeautifulSoup
 from typing import Any, List, Dict
-import certifi
 
 class NetworkManager:
     #urls to recive dynamic options in roder to show the correct available options in the gui
@@ -31,13 +30,12 @@ class NetworkManager:
     def __init_session(self) -> req.Session:
         s = req.Session()
         try:
-            s.verify = certifi.where()
-            print("i certificati SSL sono stati validati")
+            s.get(self.URL_ATLETI)
         except:
             s.verify = False
-        s.get(self.URL_ATLETI)
-        print("Connessione riuscita")
-        print("attendere l'apertura della finestra")
+            s.get(self.URL_ATLETI)
+            print("non è stato possibile validare i certificati SSL")
+        print("Connessione riuscita, attendere l'apertura della finestra")
         return s
 
     #scraps available options and their relative int value from the HTML souce code

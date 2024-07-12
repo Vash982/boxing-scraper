@@ -3,6 +3,7 @@ from tkinter import ttk, messagebox
 import re
 from threading import Thread
 from networking import NetworkManager
+import data_processing
 from data_processing import parse_athlete_data, filter_athletes, save_to_excel
 
 FONT=("sans serif", 12)
@@ -184,13 +185,23 @@ class Application:
                         case 159:
                             self.network_manager.payload["id_peso"] = 429
 
+        self.network_manager.payload["page"] = "1"
         Thread(target=self.__fetch_and_display_athletes).start()
 
 
 
-    #gets the result page, scraps and filter every athlete, and finally, writes the excel file
+    #gets the result pages, scraps and filter every athlete, and finally, writes the excel file
     def __fetch_and_display_athletes(self) -> None:
-        athlete_divs = self.network_manager.fetch_athletes(self.network_manager.URL_ATLETI)
-        athletes = [parse_athlete_data(div, self.network_manager) for div in athlete_divs]
-        filtered_athletes = filter_athletes(athletes, self.MIN_MATCHES, self.MAX_MATCHES)
-        save_to_excel(filtered_athletes, self.file_name)
+        while True:
+            athlete_divs = self.network_manager.fetch_athletes(self.network_manager.URL_ATLETI)
+            if len(athlete_divs) != 0:
+                athletes = [parse_athlete_data(div, self.network_manager) for div in athlete_divs]
+                for atleta in filter_athletes(athletes, self.MIN_MATCHES, self.MAX_MATCHES):
+                    data_processing.filtered_athletes.append(atleta)
+                page = int(self.network_manager.payload["page"])
+                page+=1
+                self.network_manager.payload["page"] = str(page)
+            else:
+                save_to_excel(data_processing.filtered_athletes, self.file_name)
+                self.network_manager.payload["page"] = "1"
+                break

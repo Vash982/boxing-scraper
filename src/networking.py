@@ -1,6 +1,5 @@
 import requests as req
 from bs4 import BeautifulSoup
-from typing import Any, List, Dict
 
 class NetworkManager:
     #urls to recive dynamic options in roder to show the correct available options in the gui
@@ -39,7 +38,7 @@ class NetworkManager:
         return s
 
     #scraps available options and their relative int value from the HTML souce code
-    def get_comitati(self) -> Dict[str, int]:
+    def get_comitati(self) -> dict[str, int]:
         if "comitati" in self.cache:
             return self.cache["comitati"]
         response = self.session.get(self.URL_ATLETI)
@@ -51,7 +50,7 @@ class NetworkManager:
             return comitati
         return {}
 
-    def get_options(self, url: str) -> Dict[str, int]:
+    def get_options(self, url: str) -> dict[str, int]:
         if url in self.cache:
             return self.cache[url]
         response = self.session.get(url, params=self.payload)
@@ -62,14 +61,14 @@ class NetworkManager:
             return options
         return {}
 
-    def fetch_athletes(self, url: str) -> List[Any]:
+    def fetch_athletes(self, url: str) -> list[any]:
         response = self.session.post(url, params=self.payload)
         if response.status_code == 200:
             soup = BeautifulSoup(response.text, 'html.parser')
             return soup.find_all('div', class_='atleta')
         return []
 
-    def get_athlete_stats(self, matricola: str) -> Dict[str, int]:
+    def get_athlete_stats(self, matricola: str) -> dict[str, int]:
         if matricola in self.cache:
             return self.cache[matricola]
         response = self.session.get(self.URL_STATISTICHE, params={'matricola': matricola})

@@ -2,8 +2,6 @@ import openpyxl
 from tkinter import messagebox
 import networking
 
-filtered_athletes = []
-
 def parse_athlete_data(athlete_div: any, network_manager: networking.NetworkManager) -> dict[str, any]:
     nome = athlete_div.find(class_='card-title').text
     età = int(athlete_div.find(class_='card-title').find_next_sibling(class_='card-title').text.split(':')[-1])

@@ -145,14 +145,21 @@ class Application:
     #if the value of the second filter combobox is set or changed, the value of the relative key is updated in the payload
     #if the value is equal to Schoolboy, wheights combobox is not available. if it already exists, it gets deleted
     def __update_qualifica(self, event: any, container: tk.Frame) -> None:
+
+        if self.network_manager.payload.get("qualifica") is not None:
+            self.network_manager.payload.pop("qualifica")
+        if self.network_manager.payload.get("id_qualifica") is not None:
+            self.network_manager.payload.pop("id_qualifica")
+        if self.network_manager.payload.get("id_peso") is not None:
+            self.network_manager.payload.pop("id_peso")
+
+
         selected_qualifica = event.widget.get()
         self.network_manager.payload["qualifica"] = self.__set_value(selected_qualifica, self.network_manager.get_options(self.network_manager.URL_QUALIFICHE))
 
         if self.pesi_combobox is not None:
             self.pesi_combobox.pack_forget()
             self.pesi_combobox = None
-            if self.network_manager.payload.get("id_peso"):
-                self.network_manager.payload.pop("id_peso")
 
         if self.network_manager.payload["qualifica"] != 17:  #Schoolboy
             self.pesi_combobox = self.add_peso(container)
@@ -171,37 +178,32 @@ class Application:
 
     #modifies the payload in order to make the right request to the server
     def __search(self) -> None:
-        if self.network_manager.payload.get("qualifica") is not None:
-            self.network_manager.payload["id_qualifica"] = self.network_manager.payload.pop("qualifica")
-
-            if self.network_manager.payload.get("id_peso") is not None:
-                if self.network_manager.payload['id_qualifica'] == 20:
-                    match self.network_manager.payload["id_peso"]:
-                        case 114:
-                            self.network_manager.payload["id_peso"] = 468
-
-                if self.network_manager.payload["id_qualifica"] == 97:
-                    match self.network_manager.payload["id_peso"]:
-                        case 159:
-                            self.network_manager.payload["id_peso"] = 429
-
+        qualifica = self.network_manager.payload.pop("qualifica", None)
+        if qualifica is not None:
+            self.network_manager.payload["id_qualifica"] = qualifica
+    
+            id_peso = self.network_manager.payload.get("id_peso")
+            if id_peso is not None:
+                if qualifica == 20 and id_peso == 114:
+                    self.network_manager.payload["id_peso"] = 468
+                elif qualifica == 97 and id_peso == 159:
+                    self.network_manager.payload["id_peso"] = 429
+    
         self.network_manager.payload["page"] = "1"
         Thread(target=self.__fetch_and_display_athletes).start()
 
-
-
     #gets the result pages, scraps and filter every athlete, and finally, writes the excel file
     def __fetch_and_display_athletes(self) -> None:
+        filtered_athletes = []
         while True:
             athlete_divs = self.network_manager.fetch_athletes(self.network_manager.URL_ATLETI)
             if len(athlete_divs) != 0:
                 athletes = [parse_athlete_data(div, self.network_manager) for div in athlete_divs]
                 for atleta in filter_athletes(athletes, self.MIN_MATCHES, self.MAX_MATCHES):
-                    data_processing.filtered_athletes.append(atleta)
-                page = int(self.network_manager.payload["page"])
-                page+=1
+                    filtered_athletes.append(atleta)
+                page = int(self.network_manager.payload["page"]) + 1
                 self.network_manager.payload["page"] = str(page)
             else:
-                save_to_excel(data_processing.filtered_athletes, self.file_name)
+                save_to_excel(filtered_athletes, self.file_name)
                 self.network_manager.payload["page"] = "1"
                 break

@@ -205,5 +205,5 @@ class Application:
                 self.network_manager.payload["page"] = str(page)
             else:
                 save_to_excel(filtered_athletes, self.file_name)
-                self.network_manager.payload["page"] = "1"
+                self.network_manager.payload.pop("page")
                 break

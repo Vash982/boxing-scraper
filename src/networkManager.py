@@ -7,38 +7,36 @@ class NetworkManager:
     URL_QUALIFICHE = "https://www.fpi.it/index.php?option=com_callrestapi&task=json_qualifiche"
     URL_PESO = "https://www.fpi.it/index.php?option=com_callrestapi&task=json_peso"
     URL_STATISTICHE = "https://www.fpi.it/index.php?option=com_callrestapi&task=json_totalizzatori"
+    cache = dict()
+    
+    """
+    the html corresponding to URL_ATLETI has a form with post method composed of select-option tags,
+    you have to create a dictionary to send as parameter to compile the form.
+    However, there are form fields whose options are generated dynamically by javascript.
+    To have access to the available info and their values you need to access the php that provides them.
+    sending a payload to php this responds with a list of options based on the data received.
+    For this you have to create an initial payload with form options that are constant,
+    and update the payload to each request get to php of the field you want to compile. """
+    payload = {
+        'id_tipo_tessera': '5',  # Atleta dilettante IBA
+        'sesso': 'M'
+    }
 
-    def __init__(self):
-        self.session = self.__init_session()
-        self.cache = {}
-
-        """
-        the html corresponding to URL_ATLETI has a form with post method composed of select-option tags,
-        you have to create a dictionary to send as parameter to compile the form.
-        However, there are form fields whose options are generated dynamically by javascript.
-        To have access to the available info and their values you need to access the php that provides them.
-        sending a payload to php this responds with a list of options based on the data received.
-        For this you have to create an initial payload with form options that are constant,
-        and update the payload to each request get to php of the field you want to compile. """
-        self.payload = {
-            'id_tipo_tessera': '5',  # Atleta dilettante IBA
-            'sesso': 'M'
-        }
-
+    def __init__(self) -> None:
+        self.session = self.initSession()
+    
     #initialize the session in order to get cookies and tokens if necessary
-    def __init_session(self) -> req.Session:
+    def initSession(self) -> req.Session:
         s = req.Session()
         try:
             s.get(self.URL_ATLETI)
         except:
             s.verify = False
             s.get(self.URL_ATLETI)
-            print("non è stato possibile validare i certificati SSL")
-        print("Connessione riuscita, attendere l'apertura della finestra")
         return s
-
+    
     #scraps available options and their relative int value from the HTML souce code
-    def get_comitati(self) -> dict[str, int]:
+    def getComitati(self) -> dict[str, int]:
         if "comitati" in self.cache:
             return self.cache["comitati"]
         response = self.session.get(self.URL_ATLETI)
@@ -49,10 +47,8 @@ class NetworkManager:
             self.cache["comitati"] = comitati
             return comitati
         return {}
-
-    def get_options(self, url: str) -> dict[str, int]:
-        if url in self.cache:
-            return self.cache[url]
+    
+    def getOptions(self, url: str) -> dict[str, int]:
         response = self.session.get(url, params=self.payload)
         if response.status_code == 200:
             options_soup = BeautifulSoup(response.text, 'html.parser')
@@ -60,6 +56,14 @@ class NetworkManager:
             self.cache[url] = options
             return options
         return {}
+    
+    def cleanQualifica(self):
+        if self.payload.get("qualifica") is not None:
+            self.payload.pop("qualifica")
+        if self.payload.get("id_qualifica") is not None:
+            self.payload.pop("id_qualifica")
+        if self.payload.get("id_peso") is not None:
+            self.payload.pop("id_peso")
 
     def fetch_athletes(self, url: str) -> list[any]:
         response = self.session.post(url, params=self.payload)

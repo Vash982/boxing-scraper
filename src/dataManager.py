@@ -1,15 +1,15 @@
 import openpyxl
 from tkinter import messagebox
-import networking
+from networkManager import NetworkManager
 
-def parse_athlete_data(athlete_div: any, network_manager: networking.NetworkManager) -> dict[str, any]:
+#takes statistics from athletes
+def parse_athlete_data(athlete_div: any, net_manager: NetworkManager) -> dict[str, any]:
     nome = athlete_div.find(class_='card-title').text
     età = int(athlete_div.find(class_='card-title').find_next_sibling(class_='card-title').text.split(':')[-1])
     società = athlete_div.find('h6', string='Società').find_next('p').text
-
     bottone = athlete_div.find('button', class_='btn btn-dark btn-sm record')
     matricola = bottone["data-id"]
-    statistiche = network_manager.get_athlete_stats(matricola)
+    statistiche = net_manager.get_athlete_stats(matricola)
 
     return {
         "nome": nome,
@@ -27,11 +27,9 @@ def filter_athletes(athletes: list[dict[str, any]], min_matches: int, max_matche
 def save_to_excel(filtered_athletes: list[dict[str, any]], file_name: str) -> None:
     wb = openpyxl.Workbook()
     sheet = wb.active
-
     keys = ["Nome e cognome", "Età", "Società", "Numero match", "Vittorie", "Sconfitte", "Pareggi"]
     for col_num, key in enumerate(keys, start=1):
         sheet.cell(row=1, column=col_num, value=key)
-
     for row_num, atleta in enumerate(filtered_athletes, start=2):
         sheet.cell(row=row_num, column=1, value=atleta.get("nome"))
         sheet.cell(row=row_num, column=2, value=atleta.get("età"))
@@ -40,7 +38,6 @@ def save_to_excel(filtered_athletes: list[dict[str, any]], file_name: str) -> No
         sheet.cell(row=row_num, column=5, value=atleta["statistiche"].get("vittorie"))
         sheet.cell(row=row_num, column=6, value=atleta["statistiche"].get("sconfitte"))
         sheet.cell(row=row_num, column=7, value=atleta["statistiche"].get("pareggi"))
-
     try:
         wb.save(f"{file_name}.xlsx")
         messagebox.showinfo("Successo", f"File '{file_name}.xlsx' creato con successo!")

@@ -6,7 +6,7 @@ import dataManager
 from threading import Thread
 import re
 
-DEFAULT_FONT = ("sans serif", 16)
+DEFAULT_FONT = ("sans serif", 14)
 
 #initialize an instance of network manager to connect the gui with http requests
 net_manager = NetworkManager()
@@ -136,22 +136,29 @@ class Application:
             self.max_matches = int(self.max_matches)
         self.__validate_file_name()
 
-    #checks if excel filename has a valid input
+    # Checks if excel filename has a valid input
     def __validate_file_name(self) -> None:
         file_name = self.file_name_input.get().strip()
-        if not file_name:
+        if file_name == "":
             qualifica = self.qualifiche_options.get() if self.qualifiche_options.get() != "" else "NA"
             peso = self.pesi_options.get() if self.pesi_options and self.pesi_options.get() != "" else "NA"
             file_name = f"{qualifica}_{peso}"
+            file_name = file_name.replace(",", ".")
+            file_name = file_name.replace("M", "")
+        
+        # Ensure the filename is valid before setting it
+        file_name = re.sub(r'[^\w\-.]', '', file_name)
+        
         if not self.__is_valid_filename(file_name):
             messagebox.showerror("Errore", "Il nome del file contiene caratteri non validi.")
             return
+        
         self.file_name = file_name
         self.__search()
 
-    #checks if the filename contains invalid characters
+    # Checks if the filename contains invalid characters
     def __is_valid_filename(self, filename: str) -> bool:
-        return bool(re.match(r'^[\w\-. ]+$', filename))
+        return bool(re.match(r'^[\w\-.]+$', filename))
     
     #modifies the payload in order to make the right request to the server
     def __search(self) -> None:

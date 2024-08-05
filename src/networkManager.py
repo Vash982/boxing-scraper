@@ -8,7 +8,7 @@ class NetworkManager:
     URL_PESO = "https://www.fpi.it/index.php?option=com_callrestapi&task=json_peso"
     URL_STATISTICHE = "https://www.fpi.it/index.php?option=com_callrestapi&task=json_totalizzatori"
     cache = dict()
-    
+
     """
     the html corresponding to URL_ATLETI has a form with post method composed of select-option tags,
     you have to create a dictionary to send as parameter to compile the form.
@@ -24,7 +24,7 @@ class NetworkManager:
 
     def __init__(self) -> None:
         self.session = self.initSession()
-    
+
     #initialize the session in order to get cookies and tokens if necessary
     def initSession(self) -> req.Session:
         s = req.Session()
@@ -34,7 +34,7 @@ class NetworkManager:
             s.verify = False
             s.get(self.URL_ATLETI)
         return s
-    
+
     #scraps available options and their relative int value from the HTML souce code
     def getComitati(self) -> dict[str, int]:
         if "comitati" in self.cache:
@@ -47,7 +47,7 @@ class NetworkManager:
             self.cache["comitati"] = comitati
             return comitati
         return {}
-    
+
     def getOptions(self, url: str) -> dict[str, int]:
         response = self.session.get(url, params=self.payload)
         if response.status_code == 200:
@@ -56,7 +56,7 @@ class NetworkManager:
             self.cache[url] = options
             return options
         return {}
-    
+
     def cleanQualifica(self):
         if self.payload.get("qualifica") is not None:
             self.payload.pop("qualifica")
@@ -65,7 +65,7 @@ class NetworkManager:
         if self.payload.get("id_peso") is not None:
             self.payload.pop("id_peso")
 
-    def fetch_athletes(self, url: str) -> list[any]:
+    def fetch_athletes(self, url: str) -> list:
         response = self.session.post(url, params=self.payload)
         if response.status_code == 200:
             soup = BeautifulSoup(response.text, 'html.parser')

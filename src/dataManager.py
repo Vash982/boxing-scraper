@@ -1,9 +1,10 @@
 import openpyxl
 from tkinter import messagebox
 from networkManager import NetworkManager
+from typing import Any
 
 #takes statistics from athletes
-def parse_athlete_data(athlete_div: any, net_manager: NetworkManager) -> dict[str, any]:
+def parse_athlete_data(athlete_div, net_manager: NetworkManager) -> dict[str, Any]:
     nome = athlete_div.find(class_='card-title').text
     età = int(athlete_div.find(class_='card-title').find_next_sibling(class_='card-title').text.split(':')[-1])
     società = athlete_div.find('h6', string='Società').find_next('p').text
@@ -18,26 +19,27 @@ def parse_athlete_data(athlete_div: any, net_manager: NetworkManager) -> dict[st
         "statistiche": statistiche
     }
 
-def filter_athletes(athletes: list[dict[str, any]], min_matches: int, max_matches: int) -> list[dict[str, any]]:
+def filter_athletes(athletes: list[dict[str, Any]], min_matches: int, max_matches: int) -> list[dict[str, Any]]:
     return [
         atleta for atleta in athletes
         if min_matches <= atleta["statistiche"]["numero_match"] <= max_matches
     ]
 
-def save_to_excel(filtered_athletes: list[dict[str, any]], file_name: str) -> None:
+def save_to_excel(filtered_athletes: list[dict[str, Any]], file_name: str) -> None:
     wb = openpyxl.Workbook()
     sheet = wb.active
     keys = ["Nome e cognome", "Età", "Società", "Numero match", "Vittorie", "Sconfitte", "Pareggi"]
-    for col_num, key in enumerate(keys, start=1):
-        sheet.cell(row=1, column=col_num, value=key)
-    for row_num, atleta in enumerate(filtered_athletes, start=2):
-        sheet.cell(row=row_num, column=1, value=atleta.get("nome"))
-        sheet.cell(row=row_num, column=2, value=atleta.get("età"))
-        sheet.cell(row=row_num, column=3, value=atleta.get("società"))
-        sheet.cell(row=row_num, column=4, value=atleta["statistiche"].get("numero_match"))
-        sheet.cell(row=row_num, column=5, value=atleta["statistiche"].get("vittorie"))
-        sheet.cell(row=row_num, column=6, value=atleta["statistiche"].get("sconfitte"))
-        sheet.cell(row=row_num, column=7, value=atleta["statistiche"].get("pareggi"))
+    if sheet is not None:
+        for col_num, key in enumerate(keys, start=1):
+            sheet.cell(row=1, column=col_num, value=key)
+        for row_num, atleta in enumerate(filtered_athletes, start=2):
+            sheet.cell(row=row_num, column=1, value=atleta.get("nome"))
+            sheet.cell(row=row_num, column=2, value=atleta.get("età"))
+            sheet.cell(row=row_num, column=3, value=atleta.get("società"))
+            sheet.cell(row=row_num, column=4, value=atleta["statistiche"].get("numero_match"))
+            sheet.cell(row=row_num, column=5, value=atleta["statistiche"].get("vittorie"))
+            sheet.cell(row=row_num, column=6, value=atleta["statistiche"].get("sconfitte"))
+            sheet.cell(row=row_num, column=7, value=atleta["statistiche"].get("pareggi"))
     try:
         wb.save(f"{file_name}.xlsx")
         messagebox.showinfo("Successo", f"File '{file_name}.xlsx' creato con successo!")

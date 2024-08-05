@@ -82,16 +82,16 @@ class Application:
     #checks if the value of the entry for min and max matches is a number
     def __validateInt(self, value: str) -> bool:
         return value.isdigit() or value == ""
-    
+
     #gets the int value of the selected option using the dict containing all the options, it will be used to update the payload
-    def __set_value(self, value: str, all_values: dict) -> (int | str):
+    def __set_value(self, value: str, all_values: dict) -> int | str:
         try:
             return int(all_values.get(value, 0))
         except:
             return ""
 
     #if the value of the first filter combobox is set or changed, the value of the relative key is updated in the payload
-    def __update_comitato(self, event: any) -> None:
+    def __update_comitato(self, event) -> None:
         selected_comitato = event.widget.get()
         net_manager.payload["id_comitato_atleti"] = self.__set_value(selected_comitato, self.comitati)
         if selected_comitato == "comitato":
@@ -99,7 +99,7 @@ class Application:
 
     #if the value of the second filter combobox is set or changed, the value of the relative key is updated in the payload
     #if the value is equal to Schoolboy, wheights combobox is not available. if it already exists, it gets deleted
-    def __updateQualifica(self, event: any, container: tk.Frame) -> None:
+    def __updateQualifica(self, event, container: tk.Frame) -> None:
         net_manager.cleanQualifica()
         if self.pesi_options is not None:
             self.pesi_options.pack_forget()
@@ -111,12 +111,12 @@ class Application:
             self.pesi_options = ttk.Combobox(container, values=list(self.pesi.keys()), state='readonly', width=30, font=("sans serif", 10))
             self.pesi_options.pack(pady=10)
             self.pesi_options.bind("<<ComboboxSelected>>", lambda event: self.__update_pesi(event))
-    
+
     #if the value of the first filter combobox is set or changed, the value of the relative key is updated in the payload
-    def __update_pesi(self, event: any) -> None:
+    def __update_pesi(self, event) -> None:
         selected_peso = event.widget.get()
         net_manager.payload["id_peso"] = self.__set_value(selected_peso, self.pesi)
-        
+
 
     #checks if min and max matches are valid inputs
     def __validate_inputs(self) -> None:
@@ -145,21 +145,21 @@ class Application:
             file_name = f"{qualifica}_{peso}"
             file_name = file_name.replace(",", ".")
             file_name = file_name.replace("M", "")
-        
+
         # Ensure the filename is valid before setting it
         file_name = re.sub(r'[^\w\-.]', '', file_name)
-        
+
         if not self.__is_valid_filename(file_name):
             messagebox.showerror("Errore", "Il nome del file contiene caratteri non validi.")
             return
-        
+
         self.file_name = file_name
         self.__search()
 
     # Checks if the filename contains invalid characters
     def __is_valid_filename(self, filename: str) -> bool:
         return bool(re.match(r'^[\w\-.]+$', filename))
-    
+
     #modifies the payload in order to make the right request to the server
     def __search(self) -> None:
         qualifica = net_manager.payload.pop("qualifica", None)

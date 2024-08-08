@@ -1,4 +1,5 @@
 ITALIAN:
+
 -COME FUNZIONA:
 	questo web scraper prende dei filtri di ricerca in input,
   per compilare il form dinamico l'applicazione invia dei payload alle risorse php del sito che le prende come json,
@@ -12,12 +13,15 @@ ITALIAN:
 	NOTA: il programma è abbastanza lento all'avvio e nella scrittura del file excel
  	NOTA: esisono delle combinazioni di filtri che non portano nessun risultano, errore del sito web originale.
 
+
 ENGLISH:
+
 -HOW IT WORKS:
 	this web scraper takes some filters in input,
   to fill the dynamic form the application sends payloads to the php resources of the site that takes them as json,
   the php resources return a list of options that the user has to choose, the list  changes based on the options chosen earlier,
   Once the form is filled in, he application takes the fighters’ data from the source code of the page and prints them in an excel file
+  
 -HOW TO USE:
  	if you use NixOS as your main operating system, you can simply use the nix-shell command to download the necessary dependencies,
 	Otherwise you need to install the libraries listed in the shell.nix file using pip.

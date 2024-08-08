@@ -47,7 +47,8 @@ class NetworkManager:
             self.cache["comitati"] = comitati
             return comitati
         return {}
-
+        
+    #scraps available options and their relative int value from the HTML souce code
     def getOptions(self, url: str) -> dict[str, int]:
         response = self.session.get(url, params=self.payload)
         if response.status_code == 200:

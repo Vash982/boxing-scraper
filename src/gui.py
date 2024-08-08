@@ -183,6 +183,9 @@ class Application:
                 athletes = [dataManager.parse_athlete_data(div, net_manager) for div in athlete_divs]
                 for atleta in dataManager.filter_athletes(athletes, self.min_matches, self.max_matches):
                     filtered_athletes.append(atleta)
+                #the page is incremented, and after the for loop is finished, the program returns at the beginning of the while loop.
+                #another post request is made to the next page. and after that, the program checks if ther is any result,
+                #if not, there are no more page to scrap
                 page = int(net_manager.payload["page"]) + 1
                 net_manager.payload["page"] = str(page)
             else:
